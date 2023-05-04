@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 03, 2023 at 04:40 AM
+-- Generation Time: May 04, 2023 at 08:46 PM
 -- Server version: 10.4.24-MariaDB
 -- PHP Version: 8.1.5
 
@@ -41,17 +41,19 @@ CREATE TABLE `attended_test` (
 --
 
 INSERT INTO `attended_test` (`id`, `test_id`, `user_id`, `attended_date`, `score`, `time_taken`) VALUES
-(1, 1, '4CB19CS089', '2023-05-02 09:19:02', 7, 277),
-(2, 2, '4CB19CS089', '2023-05-02 09:26:39', 4, 57),
-(4, 3, '4CB19CS089', '2023-05-02 11:03:34', 1, 5),
-(5, 4, '4CB19CS089', '2023-05-02 11:19:26', 1, 12),
-(6, 5, '4CB19CS089', '2023-05-03 08:01:36', 0, 0);
+(1, 5, '4CB19CS089', '2023-05-04 22:55:29', 3, 20),
+(2, 2, '4CB19CS089', '2023-05-04 23:07:47', 4, 106),
+(3, 6, '4CB19CS089', '2023-05-04 23:14:04', 4, 0);
 
 --
 -- Triggers `attended_test`
 --
 DELIMITER $$
 CREATE TRIGGER `attended_tests_trigger` AFTER INSERT ON `attended_test` FOR EACH ROW UPDATE `students` s set s.tests_attended = s.tests_attended+1 WHERE usn = new.user_id
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `updateStudentScore` AFTER UPDATE ON `attended_test` FOR EACH ROW UPDATE `students` s set s.total_score = s.total_score+old.score WHERE usn = new.user_id
 $$
 DELIMITER ;
 
@@ -332,7 +334,7 @@ INSERT INTO `students` (`usn`, `name`, `email`, `branch`, `semester`, `password`
 ('4CB19CS064', 'Padmaprasad', 'padmaprasad@gmail.com', 2, 8, '$2a$10$wuO41k5NIWvFRWzfE3Mif.dGugIsvgjoYhenqoY0A7.rdVgWun0J.', 0, 0, 0),
 ('4CB19CS076', 'Paramashiva', 'pvparamashivakaranth@gmail.com', 2, 8, '$2a$10$16Ol0.W9/JKYCm4uFIX/se/lJXFr/qGABDSj/LmkzE2kt2JxF9Dhe', 0, 0, 0),
 ('4CB19CS079', 'Rajath', 'rkprabhu@gmail.com', 2, 8, '$2a$10$5jqmEDyeWU3Ek4PcvCwHUe4aQdCXolN62UNUHOtKJw/bMf.B.v0n6', 0, 0, 0),
-('4CB19CS089', 'Sandesh', 'sandeshhd16@gmail.com', 2, 8, '$2a$10$FZmhxN6SzJ0Y72nJGeEOcO7g6UZak/L2h9Ta2M4JtPmvpUM9fql1m', 5, 0, 0),
+('4CB19CS089', 'Sandesh', 'sandeshhd16@gmail.com', 2, 8, '$2a$10$FZmhxN6SzJ0Y72nJGeEOcO7g6UZak/L2h9Ta2M4JtPmvpUM9fql1m', 9, 12, 0),
 ('4CB19CS105', 'Udith', 'udith@gmail.com', 2, 8, '$2a$10$9ZOMUKWtRqf1vWI25ni2FOyCRjfC0cgFfG9Yj5Njtg.RHcBqHloEG', 0, 0, 0);
 
 -- --------------------------------------------------------
@@ -352,11 +354,10 @@ CREATE TABLE `student_topic_score` (
 --
 
 INSERT INTO `student_topic_score` (`user_id`, `topic_id`, `score`) VALUES
-('4CB19CS089', 1, 6),
-('4CB19CS089', 2, 3),
-('4CB19CS089', 3, 2),
-('4CB19CS089', 4, 1),
-('4CB19CS089', 5, 1);
+('4CB19CS089', 1, 7),
+('4CB19CS089', 2, 1),
+('4CB19CS089', 3, 1),
+('4CB19CS089', 5, 2);
 
 -- --------------------------------------------------------
 
@@ -597,7 +598,7 @@ ALTER TABLE `topics`
 -- AUTO_INCREMENT for table `attended_test`
 --
 ALTER TABLE `attended_test`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `branches`
