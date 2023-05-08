@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 04, 2023 at 08:46 PM
+-- Generation Time: May 08, 2023 at 09:01 PM
 -- Server version: 10.4.24-MariaDB
 -- PHP Version: 8.1.5
 
@@ -24,6 +24,25 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `admin_user`
+--
+
+CREATE TABLE `admin_user` (
+  `id` int(11) NOT NULL,
+  `name` varchar(40) NOT NULL,
+  `password` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `admin_user`
+--
+
+INSERT INTO `admin_user` (`id`, `name`, `password`) VALUES
+(1, 'admin', '$2a$10$SLZuLiwCTem8UJ1Z/dzZ.uKFTdarjv4gkL1pEShgXzeQDSU/kHciW');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `attended_test`
 --
 
@@ -32,7 +51,7 @@ CREATE TABLE `attended_test` (
   `test_id` int(11) NOT NULL,
   `user_id` varchar(25) NOT NULL,
   `attended_date` datetime NOT NULL DEFAULT current_timestamp(),
-  `score` int(11) NOT NULL DEFAULT 0,
+  `score` float NOT NULL DEFAULT 0,
   `time_taken` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -41,9 +60,8 @@ CREATE TABLE `attended_test` (
 --
 
 INSERT INTO `attended_test` (`id`, `test_id`, `user_id`, `attended_date`, `score`, `time_taken`) VALUES
-(1, 5, '4CB19CS089', '2023-05-04 22:55:29', 3, 20),
-(2, 2, '4CB19CS089', '2023-05-04 23:07:47', 4, 106),
-(3, 6, '4CB19CS089', '2023-05-04 23:14:04', 4, 0);
+(1, 15, '4CB19CS089', '2023-05-07 13:22:20', 0.75, 0),
+(2, 13, '4CB19CS089', '2023-05-07 13:24:36', 1, 0);
 
 --
 -- Triggers `attended_test`
@@ -90,18 +108,21 @@ CREATE TABLE `faculty` (
   `name` varchar(50) DEFAULT NULL,
   `email` varchar(50) DEFAULT NULL,
   `branch` int(11) DEFAULT NULL,
-  `password` text DEFAULT NULL
+  `employee_id` varchar(25) NOT NULL,
+  `password` text DEFAULT NULL,
+  `verified` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `faculty`
 --
 
-INSERT INTO `faculty` (`id`, `name`, `email`, `branch`, `password`) VALUES
-(1, 'Ram', 'ram@gmail.com', 2, '$2a$10$Qv86peGrAVLWxIq1RfhlyujIU6YVUuH7zwrCBamNCdLDW0f3L1eau'),
-(2, 'Krishna', 'krishna@gmail.com', 2, '$2a$10$ciJNjkiRPJaeA5VV0LRIauRUsytg1VPdckzAiVq5Jg/mH/C4QOwke'),
-(3, 'Naveen', 'naveen@gmail.com', 2, '$2a$10$rRK7vxamv.FgE2wqGK7sf.Fqp1boDDqQaC6SaNGpV8v09Kp2kQBP.'),
-(4, 'Anil', 'anil@gmail.com', 3, '$2a$10$c02/a2pbjPpBiF.WA3h72e9m7f9RghBqmbmXHYBZdSfz6Xmy1EK6u');
+INSERT INTO `faculty` (`id`, `name`, `email`, `branch`, `employee_id`, `password`, `verified`) VALUES
+(1, 'Ram', 'ram@gmail.com', 2, 'ex1010', '$2a$10$Qv86peGrAVLWxIq1RfhlyujIU6YVUuH7zwrCBamNCdLDW0f3L1eau', 1),
+(2, 'Krishna', 'krishna@gmail.com', 2, 'ey2010', '$2a$10$ciJNjkiRPJaeA5VV0LRIauRUsytg1VPdckzAiVq5Jg/mH/C4QOwke', 0),
+(3, 'Naveen', 'naveen@gmail.com', 2, 'bp1021', '$2a$10$rRK7vxamv.FgE2wqGK7sf.Fqp1boDDqQaC6SaNGpV8v09Kp2kQBP.', 1),
+(4, 'Anil', 'anil@gmail.com', 3, 'bx1032', '$2a$10$c02/a2pbjPpBiF.WA3h72e9m7f9RghBqmbmXHYBZdSfz6Xmy1EK6u', 0),
+(6, 'Testuser', 'testuser@gmail.com', 1, 'fx505dt', '$2a$10$wvLlwWbw.tg2ipaiAZnRsOGs4RdT7U/WlSaYBKhxMlFBc7qtpQDPG', 0);
 
 -- --------------------------------------------------------
 
@@ -265,7 +286,7 @@ INSERT INTO `questions_mcq` (`question_id`, `question_title`, `option_set`, `cor
 (30, 'What does the following declaration mean?\nint (*ptr)[10];', 'ptr is array of pointers to 10 integers,ptr is a pointer to an array of 10 integers,ptr is an array of 10 integers,ptr is an pointer to array', 'ptr is a pointer to an array of 10 integers', 1, 'easy', 60, 1, '2023-05-01 21:13:28'),
 (31, 'In C, if you pass an array as an argument to a function, what actually gets passed?', 'Value of elements in array,First element of the array,Base address of the array,Address of the last element of array', 'Base address of the array', 1, 'easy', 60, 3, '2023-05-01 21:13:28'),
 (32, '\nWhich of the following is not logical operator?', '&,&&,||,!', '&', 1, 'easy', 60, 3, '2023-05-01 21:13:28'),
-(33, 'In mathematics and computer programming, which is the correct order of mathematical operators ?', '\"Addition, Subtraction, Multiplication, Division\",\"Division, Multiplication, Addition, Subtraction\",\"Multiplication, Addition, Division, Subtraction\",\"Addition, Division, Modulus, Subtraction\"', 'Division, Multiplication, Addition, Subtraction', 1, 'easy', 60, 3, '2023-05-01 21:13:28'),
+(33, 'In mathematics and computer programming, which is the correct order of mathematical operators ?', 'Addition->Subtraction->Multiplication->Division,Division->Multiplication->Addition->Subtraction,Multiplication->Addition->Division->Subtraction,Addition->Division->Modulus->Subtraction', 'Division->Multiplication->Addition->Subtraction', 1, 'easy', 60, 3, '2023-05-01 21:13:28'),
 (34, 'Which of the following cannot be checked in a switch-case statement?', 'Character,Integer,Float,enum', 'Float', 1, 'easy', 60, 3, '2023-05-01 21:13:28'),
 (35, 'A short integer is at least 16 bits wide and a long integer is at least 32 bits wide.', 'True,False', 'True', 1, 'easy', 60, 1, '2023-05-01 21:13:28'),
 (36, 'Which type of data can be stored in the database?', 'Image oriented data,Text, files containing data,Data in the form of audio or video, All of the above', 'All of the above', 1, 'medium', 60, 1, '2023-05-01 21:13:28'),
@@ -322,20 +343,18 @@ CREATE TABLE `students` (
   `password` text DEFAULT NULL,
   `tests_attended` int(11) NOT NULL DEFAULT 0,
   `total_score` int(11) NOT NULL DEFAULT 0,
-  `tests_missed` int(11) NOT NULL DEFAULT 0
+  `tests_missed` int(11) NOT NULL DEFAULT 0,
+  `verified` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `students`
 --
 
-INSERT INTO `students` (`usn`, `name`, `email`, `branch`, `semester`, `password`, `tests_attended`, `total_score`, `tests_missed`) VALUES
-('4CB19CS0120', 'Vignesh', 'vignesh@gmail.com', 2, 8, '$2a$10$JdmYWH6Rw.jLw4Y7LksUi.A9P9g4FTDHksm6tTT9Zx5/Xxfm1xxSa', 0, 0, 0),
-('4CB19CS064', 'Padmaprasad', 'padmaprasad@gmail.com', 2, 8, '$2a$10$wuO41k5NIWvFRWzfE3Mif.dGugIsvgjoYhenqoY0A7.rdVgWun0J.', 0, 0, 0),
-('4CB19CS076', 'Paramashiva', 'pvparamashivakaranth@gmail.com', 2, 8, '$2a$10$16Ol0.W9/JKYCm4uFIX/se/lJXFr/qGABDSj/LmkzE2kt2JxF9Dhe', 0, 0, 0),
-('4CB19CS079', 'Rajath', 'rkprabhu@gmail.com', 2, 8, '$2a$10$5jqmEDyeWU3Ek4PcvCwHUe4aQdCXolN62UNUHOtKJw/bMf.B.v0n6', 0, 0, 0),
-('4CB19CS089', 'Sandesh', 'sandeshhd16@gmail.com', 2, 8, '$2a$10$FZmhxN6SzJ0Y72nJGeEOcO7g6UZak/L2h9Ta2M4JtPmvpUM9fql1m', 9, 12, 0),
-('4CB19CS105', 'Udith', 'udith@gmail.com', 2, 8, '$2a$10$9ZOMUKWtRqf1vWI25ni2FOyCRjfC0cgFfG9Yj5Njtg.RHcBqHloEG', 0, 0, 0);
+INSERT INTO `students` (`usn`, `name`, `email`, `branch`, `semester`, `password`, `tests_attended`, `total_score`, `tests_missed`, `verified`) VALUES
+('4CB19CS064', 'Padmaprasad', 'padmaprasad@gmail.com', 2, 8, '$2a$10$wuO41k5NIWvFRWzfE3Mif.dGugIsvgjoYhenqoY0A7.rdVgWun0J.', 0, 0, 0, 1),
+('4CB19CS076', 'Paramashiva', 'pvparamashivakaranth@gmail.com', 2, 8, '$2a$10$16Ol0.W9/JKYCm4uFIX/se/lJXFr/qGABDSj/LmkzE2kt2JxF9Dhe', 0, 0, 0, 1),
+('4CB19CS089', 'Sandesh', 'sandeshhd16@gmail.com', 2, 8, '$2a$10$FZmhxN6SzJ0Y72nJGeEOcO7g6UZak/L2h9Ta2M4JtPmvpUM9fql1m', 41, 118, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -346,7 +365,7 @@ INSERT INTO `students` (`usn`, `name`, `email`, `branch`, `semester`, `password`
 CREATE TABLE `student_topic_score` (
   `user_id` varchar(25) NOT NULL,
   `topic_id` int(11) NOT NULL,
-  `score` int(11) NOT NULL
+  `score` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -354,10 +373,9 @@ CREATE TABLE `student_topic_score` (
 --
 
 INSERT INTO `student_topic_score` (`user_id`, `topic_id`, `score`) VALUES
-('4CB19CS089', 1, 7),
-('4CB19CS089', 2, 1),
-('4CB19CS089', 3, 1),
-('4CB19CS089', 5, 2);
+('4CB19CS089', 1, 14),
+('4CB19CS089', 3, 11),
+('4CB19CS089', 5, 12);
 
 -- --------------------------------------------------------
 
@@ -383,13 +401,9 @@ CREATE TABLE `tests` (
 --
 
 INSERT INTO `tests` (`id`, `test_name`, `faculty_id`, `sections`, `duration`, `questions`, `marks`, `deadline`, `instructions`, `status`) VALUES
-(1, 'General Test', 1, 0, 720, 12, 12, '2023-05-02 16:30:00', '', 'enabled'),
-(2, 'First Internal', 1, 0, 300, 5, 5, '2023-05-12 01:00:00', '', 'enabled'),
-(3, '2nd internal', 1, 0, 240, 4, 4, '2023-05-02 23:43:43', '', 'enabled'),
-(4, '3rd internal', 1, 0, 60, 1, 1, '2023-05-04 00:18:20', '', 'enabled'),
-(5, 'New Test', 1, 0, 240, 4, 4, '2023-05-18 06:21:55', '', 'enabled'),
-(6, 'Class test', 1, 0, 300, 5, 5, '2023-05-25 06:30:46', '', 'enabled'),
-(7, 'Test 1500', 1, 0, 120, 2, 2, '2023-05-25 02:49:07', '', 'disabled');
+(3, '2nd internal', 1, 0, 240, 4, 4, '2023-05-02 23:43:43', '', 'disabled'),
+(13, 'Test x', 1, 0, 240, 4, 4, '2023-05-18 13:26:33', '', 'enabled'),
+(15, 'testing-test', 1, 0, 120, 2, 2, '2023-05-15 07:05:29', '', 'enabled');
 
 -- --------------------------------------------------------
 
@@ -407,10 +421,9 @@ CREATE TABLE `tests_branch` (
 --
 
 INSERT INTO `tests_branch` (`test_id`, `branch_id`) VALUES
-(1, 2),
-(2, 2),
 (3, 2),
-(4, 2);
+(13, 5),
+(15, 3);
 
 -- --------------------------------------------------------
 
@@ -428,39 +441,16 @@ CREATE TABLE `test_questions` (
 --
 
 INSERT INTO `test_questions` (`test_id`, `question_id`) VALUES
-(1, 58),
-(1, 57),
-(1, 56),
-(1, 33),
-(1, 35),
-(1, 36),
-(1, 37),
-(1, 38),
-(1, 39),
-(1, 28),
-(1, 29),
-(1, 30),
-(2, 42),
-(2, 43),
-(2, 38),
-(2, 37),
-(2, 35),
 (3, 71),
 (3, 73),
 (3, 26),
 (3, 27),
-(4, 25),
-(5, 25),
-(5, 27),
-(5, 50),
-(5, 49),
-(6, 25),
-(6, 26),
-(6, 44),
-(6, 45),
-(6, 55),
-(7, 35),
-(7, 34);
+(13, 24),
+(13, 25),
+(13, 26),
+(13, 27),
+(15, 24),
+(15, 41);
 
 --
 -- Triggers `test_questions`
@@ -504,6 +494,12 @@ INSERT INTO `topics` (`topic_id`, `topic_name`) VALUES
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `admin_user`
+--
+ALTER TABLE `admin_user`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `attended_test`
@@ -560,8 +556,8 @@ ALTER TABLE `students`
 -- Indexes for table `student_topic_score`
 --
 ALTER TABLE `student_topic_score`
-  ADD PRIMARY KEY (`topic_id`),
-  ADD KEY `sts_user_constraint` (`user_id`);
+  ADD PRIMARY KEY (`user_id`,`topic_id`),
+  ADD KEY `topic_id` (`topic_id`);
 
 --
 -- Indexes for table `tests`
@@ -595,22 +591,28 @@ ALTER TABLE `topics`
 --
 
 --
+-- AUTO_INCREMENT for table `admin_user`
+--
+ALTER TABLE `admin_user`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `attended_test`
 --
 ALTER TABLE `attended_test`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `branches`
 --
 ALTER TABLE `branches`
-  MODIFY `branch_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `branch_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `faculty`
 --
 ALTER TABLE `faculty`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `notice_board`
@@ -622,19 +624,19 @@ ALTER TABLE `notice_board`
 -- AUTO_INCREMENT for table `questions_mcq`
 --
 ALTER TABLE `questions_mcq`
-  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
+  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
 
 --
 -- AUTO_INCREMENT for table `tests`
 --
 ALTER TABLE `tests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `topics`
 --
 ALTER TABLE `topics`
-  MODIFY `topic_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `topic_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables
@@ -682,8 +684,8 @@ ALTER TABLE `students`
 -- Constraints for table `student_topic_score`
 --
 ALTER TABLE `student_topic_score`
-  ADD CONSTRAINT `sts_topic_constraint` FOREIGN KEY (`topic_id`) REFERENCES `topics` (`topic_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `sts_user_constraint` FOREIGN KEY (`user_id`) REFERENCES `students` (`usn`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `student_topic_score_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `students` (`usn`) ON DELETE CASCADE,
+  ADD CONSTRAINT `student_topic_score_ibfk_2` FOREIGN KEY (`topic_id`) REFERENCES `topics` (`topic_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `tests`
