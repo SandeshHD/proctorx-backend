@@ -92,6 +92,15 @@ router.get("/noticeboard", (req, res) => {
     }
   );
 });
+router.get("/branches", (req, res) => {
+  connection.query(
+    "SELECT * FROM `branches`;",
+    (err, results, fields) => {
+      if (err) return res.status(400).send(err);
+      return res.send(results);
+    }
+  );
+});
 
 router.get("/test", (req, res) => {
   connection.query(
@@ -115,13 +124,31 @@ router.get("/testInfo", (req, res) => {
   );
 });
 
+router.get('/all_tests',(req, res)=>{
+  let query = `SELECT t.id,test_name,faculty_id,name,duration,questions,marks,status,deadline,(select count(*) from \`tests\`) as total_records FROM \`tests\` t INNER JOIN \`faculty\` f ON f.id = t.faculty_id WHERE 1`
+  if(req.query.branch_id!=0){
+    query = `SELECT t.id,test_name,faculty_id,name,duration,questions,marks,status,deadline,(select count(*) from \`tests_branch\` tb INNER JOIN \`tests\` t ON tb.test_id = t.id WHERE tb.branch_id = ${req.query.branch_id}) as total_records FROM \`tests_branch\` tb INNER JOIN \`tests\` t ON tb.test_id = t.id INNER JOIN \`faculty\` f ON f.id = t.faculty_id WHERE branch_id = ${req.query.branch_id} `
+  }
+  if(req.query.show=='enabled' || req.query.show == 'disabled'){
+    query+= `AND status = '${req.query.show}'`
+  }
+  query += " AND (test_name LIKE ? OR deadline LIKE ? OR name LIKE ?) ORDER BY deadline LIMIT ? OFFSET ?;"
+  connection.query(
+    query,
+    ['%'+req.query.query+'%','%'+req.query.query+'%','%'+req.query.query+'%',parseInt(req.query.rows),parseInt(req.query.first)],
+    (err, results, fields) => {
+      if (err) return res.status(400).send(err);
+      return res.send(results);
+    }
+  );
+})
 
 router.get('/faculty_tests',(req, res)=>{
   let query = "SELECT id,test_name,faculty_id,duration,questions,marks,status,deadline,(select count(*) from `tests` where faculty_id = ?) as total_records FROM `tests` WHERE faculty_id = ?"
   if(req.query.show=='enabled' || req.query.show == 'disabled'){
     query+= `AND status = '${req.query.show}'`
   }
-  query += " AND (test_name LIKE ? OR deadline LIKE ?) ORDER BY deadline DESC LIMIT ? OFFSET ?;"
+  query += " AND (test_name LIKE ? OR deadline LIKE ?) ORDER BY deadline LIMIT ? OFFSET ?;"
   connection.query(
     query,
     [req.query.faculty_id,req.query.faculty_id,'%'+req.query.query+'%','%'+req.query.query+'%',parseInt(req.query.rows),parseInt(req.query.first)],
@@ -134,7 +161,7 @@ router.get('/faculty_tests',(req, res)=>{
 
 router.get('/test_questions',(req, res)=>{
   connection.query(
-    "SELECT tq.question_id,question_title,option_set,correct_answer,points,difficulty_level,time_limit FROM `test_questions` tq INNER JOIN `questions_mcq` qm on tq.question_id = qm.question_id WHERE test_id = ?;",
+    "SELECT f.name,tq.question_id,question_title,option_set,correct_answer,points,difficulty_level,time_limit FROM `test_questions` tq INNER JOIN `questions_mcq` qm on tq.question_id = qm.question_id INNER JOIN `faculty` f ON f.id = qm.created_by WHERE test_id = ?;",
     [parseInt(req.query.test_id)],
     (err, results, fields) => {
       if (err) return res.status(400).send(err);
@@ -166,14 +193,38 @@ router.get('/view_results',(req, res)=>{
 })
 
 router.get('/students',(req, res)=>{
-  let query = "SELECT usn,name,email,semester,tests_attended,tests_missed,total_score,(SELECT count(*) FROM `students` WHERE branch=?) as total_records FROM `students` WHERE branch= ? "
+  let query;
+  if(req.query.branch_id!=0){
+    query = `SELECT usn,name,email,semester,tests_attended,tests_missed,total_score,verified, (SELECT count(*) FROM \`students\` WHERE branch=${parseInt(req.query.branch_id)} ${req.query.semester!=0?`AND semester = ${parseInt(req.query.semester)} `:''} ${req.query.status!=-1?`AND verified = ${req.query.status}`:''} ) as total_records FROM \`students\` WHERE branch= ${parseInt(req.query.branch_id)} ${req.query.status!=-1?` AND verified = ${req.query.status} `:' '}`
+  }else{
+    query = `SELECT usn,name,email,semester,tests_attended,tests_missed,total_score,verified, (SELECT count(*) FROM \`students\` WHERE 1 ${req.query.semester!=0?`AND semester = ${parseInt(req.query.semester)} `:''} ${req.query.status!=-1?` AND verified = ${req.query.status} `:' '}) as total_records FROM \`students\` WHERE 1 ${req.query.status!=-1?` AND verified = ${req.query.status} `:' '} `
+  }
   if(req.query.semester!=0){
     query+=` AND semester = ${req.query.semester} `
   }
   query+='AND (usn LIKE ? OR name LIKE ? OR email LIKE ?) ORDER BY total_score DESC LIMIT ? OFFSET ?;'
   connection.query(
     query,
-    [parseInt(req.query.branch_id),parseInt(req.query.branch_id),'%' + req.query.query + '%','%' + req.query.query + '%','%' + req.query.query + '%',parseInt(req.query.rows),parseInt(req.query.first)],
+    ['%' + req.query.query + '%','%' + req.query.query + '%','%' + req.query.query + '%',parseInt(req.query.rows),parseInt(req.query.first)],
+    (err, results, fields) => {
+      if (err) return res.status(400).send(err);
+      return res.send(results);
+    }
+  );
+})
+
+router.get('/faculties',(req, res)=>{
+  let query;
+  if(req.query.branch_id!=0){
+    query = `SELECT id,employee_id,name,email,branch_name,verified,(SELECT count(*) FROM \`faculty\` WHERE branch=${parseInt(req.query.branch_id)} ${req.query.status!=-1?`AND verified = ${req.query.status}`:''}) as total_records FROM \`faculty\` f INNER JOIN branches b ON f.branch = b.branch_id WHERE branch= ${parseInt(req.query.branch_id)} ${req.query.status!=-1?` AND verified = ${req.query.status} `:' '}`
+  }else{
+    query = `SELECT id,employee_id,name,email,branch_name,verified,(SELECT count(*) FROM \`faculty\` ${req.query.status!=-1?`WHERE verified = ${req.query.status}`:''}) as total_records FROM \`faculty\` f INNER JOIN branches b on f.branch = b.branch_id WHERE 1 ${req.query.status!=-1?`AND verified = ${req.query.status}`:''} `
+  }
+
+  query+='AND (name LIKE ? OR employee_id LIKE ? OR email LIKE ?) LIMIT ? OFFSET ?;'
+  connection.query(
+    query,
+    ['%' + req.query.query + '%','%' + req.query.query + '%','%' + req.query.query + '%',parseInt(req.query.rows),parseInt(req.query.first)],
     (err, results, fields) => {
       if (err) return res.status(400).send(err);
       return res.send(results);
@@ -182,7 +233,6 @@ router.get('/students',(req, res)=>{
 })
 
 router.get('/question_by_id',(req, res)=>{
-  let questionSet = []
   connection.query(
     "SELECT question_id,question_title,option_set,date_created,correct_answer,points,difficulty_level,time_limit FROM `questions_mcq` qm WHERE qm.created_by=? AND qm.question_id=?", [parseInt(req.query.faculty_id),parseInt(req.query.id)],
     (err, results, fields) => {
@@ -203,10 +253,41 @@ router.get('/question_by_id',(req, res)=>{
     });
 })
 
+router.get('/admin_question_by_id',(req, res)=>{
+  connection.query(
+    "SELECT question_id,question_title,option_set,date_created,correct_answer,points,difficulty_level,time_limit FROM `questions_mcq` qm INNER JOIN `faculty` f ON f.id = qm.created_by WHERE qm.question_id=?", [parseInt(req.query.id)],
+    (err, results, fields) => {
+      if (err) return res.status(400).send(err);
+      if (!results || results.length==0) return res.send('No data found')
+      connection.query(
+        "SELECT mt.topic_id,topic_name FROM `mcq_topic` mt INNER JOIN `topics` t ON mt.topic_id = t.topic_id WHERE mt.q_id = ?;",
+        [results[0]['question_id']],
+        (error, reslt, fields) => {
+          if (error) return res.status(400).send(error);
+          let body = {
+            ...results,
+            topics:reslt
+          }
+          return res.send(body)
+        });
+    });
+})
+
 router.get('/questions',(req, res)=>{
   let query = `SELECT qm.question_id,qm.question_title,(SELECT count(DISTINCT q_id) FROM \`mcq_topic\` mtc LEFT JOIN \`questions_mcq\` qmq ON mtc.q_id = qmq.question_id WHERE qmq.created_by=${req.query.faculty_id} ${req.query.topic_id!=0?`AND topic_id = ${req.query.topic_id}`:''}) as total_records FROM \`mcq_topic\` mt LEFT JOIN \`questions_mcq\` qm ON mt.q_id = qm.question_id  WHERE question_title LIKE ? ${req.query.topic_id!=0?`AND topic_id = ${req.query.topic_id}`:''} AND created_by = ? GROUP BY qm.question_id ORDER BY date_created DESC LIMIT ? OFFSET ?;`
   connection.query(
     query, ['%'+req.query.query+'%',parseInt(req.query.faculty_id),parseInt(req.query.rows),parseInt(req.query.first)],
+    (err, results, fields) => {
+      if (err) return res.status(400).send(err);
+      return res.send(results);
+    }
+  );
+})
+
+router.get('/admin_questions',(req, res)=>{
+  let query = `SELECT qm.question_id,qm.question_title,qm.option_set,qm.correct_answer,qm.points,qm.difficulty_level,qm.time_limit,f.name,(SELECT count(DISTINCT q_id) FROM \`mcq_topic\` mtc LEFT JOIN \`questions_mcq\` qmq ON mtc.q_id = qmq.question_id WHERE 1 ${req.query.topic_id!=0?`AND topic_id = ${req.query.topic_id}`:''}) as total_records FROM \`mcq_topic\` mt LEFT JOIN \`questions_mcq\` qm ON mt.q_id = qm.question_id LEFT JOIN faculty f ON f.id = qm.created_by WHERE question_title LIKE ? ${req.query.topic_id!=0?`AND topic_id = ${req.query.topic_id}`:''} GROUP BY qm.question_id ORDER BY date_created DESC LIMIT ? OFFSET ?;`
+  connection.query(
+    query, ['%'+req.query.query+'%',parseInt(req.query.rows),parseInt(req.query.first)],
     (err, results, fields) => {
       if (err) return res.status(400).send(err);
       return res.send(results);
@@ -235,5 +316,29 @@ router.get('/topics',(req, res)=>{
     }
   );
 })
+
+router.get('/branches_info',(req, res)=>{
+  connection.query(
+    "select b.branch_id, b.branch_name,(SELECT count(*) FROM `faculty` f WHERE f.branch = b.branch_id) as faculty_count,(SELECT count(*) FROM `students` s WHERE s.branch = b.branch_id) as student_count from branches b;",
+    [],
+    (err, results, fields) => {
+      if (err) return res.status(400).send(err);
+      return res.send(results);
+    }
+  );
+})
+
+router.get('/topics_info',(req, res)=>{
+  connection.query(
+    "SELECT *, (SELECT count(*) FROM `mcq_topic`mt WHERE mt.topic_id = t.topic_id) as no_questions FROM `topics` t;",
+    [],
+    (err, results, fields) => {
+      if (err) return res.status(400).send(err);
+      return res.send(results);
+    }
+  );
+})
+
+
 
 module.exports = router;

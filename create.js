@@ -22,8 +22,29 @@ router.post("/faculty", async (req, res) => {
     const password = await bcrypt.hash(req.body.password, salt);
 
     connection.query(
-      "INSERT INTO `faculty` (`name`, `email`, `branch`, `password`) VALUES (?, ?, ?, ?);",
-      [req.body.name, req.body.email, req.body.branch, password],
+      "INSERT INTO `faculty` (`name`,`employee_id`,`email`, `branch`, `password`) VALUES (?, ?, ?, ?, ?);",
+      [req.body.name, req.body.employee_id, req.body.email, req.body.branch, password],
+      (error, result, field) => {
+        if (error) {
+          return res.status(400).send(error);
+        }
+        return res.send(result);
+      }
+    );
+  } catch (error) {
+    return res.status(500).send(error);
+  }
+});
+
+// Create Super admin
+router.post("/admin", async (req, res) => {
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const password = await bcrypt.hash(req.body.password, salt);
+
+    connection.query(
+      "INSERT INTO `admin_user` (`name`, `password`) VALUES (?, ?);",
+      [req.body.name,password],
       (error, result, field) => {
         if (error) {
           return res.status(400).send(error);
@@ -140,17 +161,40 @@ router.post('/question-bank-items',(req,res)=>{
   
 // Create Test
 router.post('/test',(req,res)=>{
-    connection.query("INSERT INTO `tests` (`test_name`,`faculty_id`,`deadline`) VALUES (?, ?,?);",[req.body.test_name,req.body.faculty_id,req.body.deadline],(err,result,fields)=>{
-      if (err) return res.status(400).send(err);
-      req.body.questions.forEach((question,index) => {
-        connection.query("INSERT INTO `test_questions` (`test_id`,`question_id`) VALUES (?, ?);",[result['insertId'],question],(err,result,fields)=>{
-          if (err) return res.status(400).send(err);
-          if(index===req.body.questions.length-1){
-            return res.send(result)
-          }
-        })
-      });
+    const test = new Promise((resolve,reject) =>{
+      connection.query("INSERT INTO `tests` (`test_name`,`faculty_id`,`deadline`) VALUES (?, ?,?);",[req.body.test_name,req.body.faculty_id,req.body.deadline],(err,result,fields)=>{
+        if (err) reject(err);
+        resolve(result)
+      })
     })
+
+    const questionsPromise  = new Promise((resolve, reject) =>{
+      test.then((result)=>{
+        req.body.questions.forEach((question,index) => {
+          connection.query("INSERT INTO `test_questions` (`test_id`,`question_id`) VALUES (?, ?);",[result['insertId'],question],(err,reslt,fields)=>{
+            if (err) reject(err);
+            if(index===req.body.questions.length-1){
+              resolve({
+                tests:result,
+                test_questions:reslt
+              })
+            }
+          })
+        });
+      }).catch(err=>{
+        return reject(err);
+      })
+    })
+
+    questionsPromise.then(result=>{
+      connection.query("INSERT INTO `tests_branch` (`test_id`,`branch_id`) VALUES (?,?);",[result.tests['insertId'],req.body.branch_id],(err,reslt,fields)=>{
+        if (err) return res.status(400).send(err)
+        res.send(result.tests)
+      })
+    }).catch(err=>{
+      return res.status(400).send(err)
+    })
+
 })
 
 // Start Test

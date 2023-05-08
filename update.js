@@ -5,6 +5,11 @@ const connection = require("./config/database");
 router.patch("/save_question", (req, res) => {
   var topics;
   var questionInfo;
+  var difficulty = {
+    "easy": 1,
+    "medium": 0.5,
+    "hard" : 0.25
+  }
   connection.query(
     "SELECT * FROM `questions_mcq` WHERE question_id = ?;",
     [req.body.question_id],
@@ -12,9 +17,18 @@ router.patch("/save_question", (req, res) => {
       if (err) return res.status(400).send(err);
       questionInfo = results[0];
       if(req.body.answer === questionInfo['correct_answer']){
+        let totalPoints = questionInfo['points'];
+        var timePercent = (req.body.time_taken/questionInfo['time_limit'])*100
+        if(timePercent>30 && timePercent<60){
+          totalPoints -= totalPoints*(10*difficulty[questionInfo['difficulty_level']]/100)
+        }else if(timePercent>=60 && timePercent<90){
+          totalPoints -= totalPoints*(30*difficulty[questionInfo['difficulty_level']]/100)
+        }else if(timePercent>=90){
+          totalPoints -= totalPoints * (50*difficulty[questionInfo['difficulty_level']]/100)
+        }
         connection.query(
           "UPDATE `attended_test` SET `score` = score+? WHERE `attended_test`.`test_id` = ?;",
-          [parseInt(questionInfo['points']),parseInt(req.body.test_id)],
+          [totalPoints,parseInt(req.body.test_id)],
           (err, results, fields) => {
             if (err) return res.status(400).send(err);
             connection.query(
@@ -56,8 +70,40 @@ router.patch("/submit_test", (req, res) => {
   })
 });
 
+router.patch("/update_branch", (req, res) => {
+  connection.query('UPDATE `branches` SET `branch_name` = ? WHERE `branch_id` = ?;',[req.body.branch_name,req.body.branch_id],
+  (err,results,fields)=>{
+    if (err) return res.status(400).send(err);
+    return res.send(results);
+  })
+});
+
+router.patch("/update_topic", (req, res) => {
+  connection.query('UPDATE `topics` SET `topic_name` = ? WHERE `topic_id` = ?;',[req.body.topic_name,req.body.topic_id],
+  (err,results,fields)=>{
+    if (err) return res.status(400).send(err);
+    return res.send(results);
+  })
+});
+
 router.patch("/change_status", (req, res) => {
   connection.query("UPDATE `tests` SET `status` = ? WHERE `tests`.`id` = ?;",[req.body.status, req.body.test_id],
+  (err,results,fields)=>{
+    if (err) return res.status(400).send(err);
+    return res.send(results);
+  })
+});
+
+router.patch("/change_faculty_status", (req, res) => {
+  connection.query("UPDATE `faculty` SET `verified` = ? WHERE `faculty`.`id` = ?;",[req.body.status, req.body.faculty_id],
+  (err,results,fields)=>{
+    if (err) return res.status(400).send(err);
+    return res.send(results);
+  })
+});
+
+router.patch("/change_student_status", (req, res) => {
+  connection.query("UPDATE `students` SET `verified` = ? WHERE `usn` = ?;",[req.body.status, req.body.usn],
   (err,results,fields)=>{
     if (err) return res.status(400).send(err);
     return res.send(results);
