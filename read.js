@@ -15,9 +15,9 @@ router.get("/branches", (req, res) => {
 
 // Read upcoming tests
 router.get("/upcomingTests", (req, res) => {
-  // "SELECT t.test_id,b.branch_id, b.branch_name, ts.test_name,f.name as faculty_name, ts.sections, ts.duration, ts.questions, ts.marks, ts.deadline, ts.instructions, ts.status from `tests_branch` t INNER join `branches` b on t.branch_id = b.branch_id INNER join `tests` ts on t.test_id = ts.id INNER JOIN `faculty` f ON ts.faculty_id = f.id where b.branch_id=? AND ts.deadline > CURRENT_TIMESTAMP AND ts.status='enabled' AND t.test_id NOT IN(select test_id from `attended_test` WHERE user_id=?);",
+  // "SELECT t.test_id,b.branch_id, b.branch_name, ts.test_name,f.name as faculty_name, ts.duration, ts.questions, ts.marks, ts.deadline,ts.status from `tests_branch` t INNER join `branches` b on t.branch_id = b.branch_id INNER join `tests` ts on t.test_id = ts.id INNER JOIN `faculty` f ON ts.faculty_id = f.id where b.branch_id=? AND ts.deadline > CURRENT_TIMESTAMP AND ts.status='enabled' AND t.test_id NOT IN(select test_id from `attended_test` WHERE user_id=?);",
   connection.query(
-    "SELECT ts.id, ts.test_name,f.name as faculty_name, ts.sections, ts.duration, ts.questions, ts.marks, ts.deadline, ts.instructions, ts.status from `tests` ts LEFT JOIN `faculty` f ON ts.faculty_id = f.id where ts.deadline > CURRENT_TIMESTAMP AND ts.status='enabled' AND ts.id NOT IN(select test_id from `attended_test` WHERE user_id=?);",
+    "SELECT ts.id, ts.test_name,f.name as faculty_name, ts.duration, ts.questions, ts.marks, ts.deadline, ts.status from `tests` ts LEFT JOIN `faculty` f ON ts.faculty_id = f.id where ts.deadline > CURRENT_TIMESTAMP AND ts.status='enabled' AND ts.id NOT IN(select test_id from `attended_test` WHERE user_id=?);",
     [req.query.usn],
     (err, results, fields) => {
       if (err) return res.status(400).send(err);      
@@ -42,7 +42,7 @@ router.get("/test_parts", (req, res) => {
 
 router.get("/attended_tests", (req, res) => {
   connection.query(
-    "SELECT a.id,t.test_name, f.name,a.attended_date,t.sections,t.marks,a.score FROM `attended_test` a INNER JOIN `tests` t ON a.test_id=t.id INNER JOIN `students` s ON s.usn=a.user_id INNER JOIN `faculty` f ON f.id=t.faculty_id WHERE a.user_id=?;",
+    "SELECT a.id,t.test_name, f.name,a.attended_date,t.marks,a.score FROM `attended_test` a INNER JOIN `tests` t ON a.test_id=t.id INNER JOIN `students` s ON s.usn=a.user_id INNER JOIN `faculty` f ON f.id=t.faculty_id WHERE a.user_id=?;",
     [req.query.usn],
     (err, results, fields) => {
       if (err) return res.status(400).send(err);
@@ -53,8 +53,8 @@ router.get("/attended_tests", (req, res) => {
 
 router.get("/user_stats", (req, res) => {
   connection.query(
-    "select s1.tests_attended,s1.total_score,s1.tests_missed, (select count(distinct total_score) from `students` s2 WHERE s2.total_score >= s1.total_score) as 'overall_rank' from `students` s1 WHERE s1.usn=?;",
-    [req.query.usn],
+    "select s1.tests_attended,s1.total_score,(SELECT count(*) FROM `tests` t INNER JOIN `tests_branch` tb ON t.id=tb.test_id WHERE t.deadline < CURRENT_TIMESTAMP AND t.id NOT IN(SELECT ats.test_id FROM `attended_test` ats WHERE ats.user_id = ?) AND branch_id = ?) AS tests_missed, (select count(distinct total_score) from `students` s2 WHERE s2.total_score >= s1.total_score) as 'overall_rank' from `students` s1 WHERE s1.usn=?;",
+    [req.query.usn,req.query.branch_id,req.query.usn],
     (err, results, fields) => {
       if (err) return res.status(400).send(err);
       return res.send(...results);
@@ -195,9 +195,9 @@ router.get('/view_results',(req, res)=>{
 router.get('/students',(req, res)=>{
   let query;
   if(req.query.branch_id!=0){
-    query = `SELECT usn,name,email,semester,tests_attended,tests_missed,total_score,verified, (SELECT count(*) FROM \`students\` WHERE branch=${parseInt(req.query.branch_id)} ${req.query.semester!=0?`AND semester = ${parseInt(req.query.semester)} `:''} ${req.query.status!=-1?`AND verified = ${req.query.status}`:''} ) as total_records FROM \`students\` WHERE branch= ${parseInt(req.query.branch_id)} ${req.query.status!=-1?` AND verified = ${req.query.status} `:' '}`
+    query = `SELECT usn,name,email,semester,tests_attended,(SELECT count(*) FROM \`tests\` tx INNER JOIN \`tests_branch\` tbx ON tx.id=tbx.test_id WHERE tx.deadline < CURRENT_TIMESTAMP AND tx.id NOT IN(SELECT atsx.test_id FROM \`attended_test\` atsx WHERE atsx.user_id = usn) AND tbx.branch_id = branch) AS tests_missed,total_score,verified,branch_name, (SELECT count(*) FROM \`students\` WHERE branch=${parseInt(req.query.branch_id)} ${req.query.semester!=0?`AND semester = ${parseInt(req.query.semester)} `:''} ${req.query.status!=-1?`AND verified = ${req.query.status}`:''} ) as total_records FROM \`students\` s INNER JOIN \`branches\` b ON b.branch_id = s.branch  WHERE branch= ${parseInt(req.query.branch_id)} ${req.query.status!=-1?` AND verified = ${req.query.status} `:' '}`
   }else{
-    query = `SELECT usn,name,email,semester,tests_attended,tests_missed,total_score,verified, (SELECT count(*) FROM \`students\` WHERE 1 ${req.query.semester!=0?`AND semester = ${parseInt(req.query.semester)} `:''} ${req.query.status!=-1?` AND verified = ${req.query.status} `:' '}) as total_records FROM \`students\` WHERE 1 ${req.query.status!=-1?` AND verified = ${req.query.status} `:' '} `
+    query = `SELECT usn,name,email,semester,tests_attended,(SELECT count(*) FROM \`tests\` tx INNER JOIN \`tests_branch\` tbx ON tx.id=tbx.test_id WHERE tx.deadline < CURRENT_TIMESTAMP AND tx.id NOT IN(SELECT atsx.test_id FROM \`attended_test\` atsx WHERE atsx.user_id = usn) AND tbx.branch_id = branch) AS tests_missed,total_score,verified,branch_name, (SELECT count(*) FROM \`students\` WHERE 1 ${req.query.semester!=0?`AND semester = ${parseInt(req.query.semester)} `:''} ${req.query.status!=-1?` AND verified = ${req.query.status} `:' '}) as total_records FROM \`students\` s INNER JOIN \`branches\` b ON b.branch_id = s.branch  WHERE 1 ${req.query.status!=-1?` AND verified = ${req.query.status} `:' '} `
   }
   if(req.query.semester!=0){
     query+=` AND semester = ${req.query.semester} `
@@ -284,6 +284,28 @@ router.get('/questions',(req, res)=>{
   );
 })
 
+router.get('/notices',(req, res)=>{
+  let query = `SELECT nbx.id,notice_heading,notice,notice_date,(SELECT count(id) FROM \`notice_board\` nb WHERE nb.faculty_id=${req.query.faculty_id}) as total_records FROM \`notice_board\` nbx WHERE (nbx.notice_heading LIKE ? OR nbx.notice LIKE ?) AND faculty_id = ? ORDER BY notice_date DESC LIMIT ? OFFSET ?;`
+  connection.query(
+    query, ['%'+req.query.query+'%','%'+req.query.query+'%',parseInt(req.query.faculty_id),parseInt(req.query.rows),parseInt(req.query.first)],
+    (err, results, fields) => {
+      if (err) return res.status(400).send(err);
+      return res.send(results);
+    }
+  );
+})
+
+router.get('/all_notices',(req, res)=>{
+  let query = `SELECT nbx.id,name,notice_heading,notice,notice_date,(SELECT count(nb.id) FROM \`notice_board\` nb INNER JOIN \`faculty\` fx ON fx.id = nb.faculty_id WHERE 1 ${req.query.branch_id!=0?` AND fx.branch = ${req.query.branch_id}`:''}) as total_records FROM \`notice_board\` nbx INNER JOIN \`faculty\` f ON f.id = nbx.faculty_id INNER JOIN \`branches\` b ON b.branch_id = f.branch WHERE (nbx.notice_heading LIKE ? OR nbx.notice LIKE ?) ${req.query.branch_id!=0?` AND f.branch = ${req.query.branch_id}`:''}  ORDER BY notice_date DESC LIMIT ? OFFSET ?;`
+  connection.query(
+    query, ['%'+req.query.query+'%','%'+req.query.query+'%',parseInt(req.query.rows),parseInt(req.query.first)],
+    (err, results, fields) => {
+      if (err) return res.status(400).send(err);
+      return res.send(results);
+    }
+  );
+})
+
 router.get('/admin_questions',(req, res)=>{
   let query = `SELECT qm.question_id,qm.question_title,qm.option_set,qm.correct_answer,qm.points,qm.difficulty_level,qm.time_limit,f.name,(SELECT count(DISTINCT q_id) FROM \`mcq_topic\` mtc LEFT JOIN \`questions_mcq\` qmq ON mtc.q_id = qmq.question_id WHERE 1 ${req.query.topic_id!=0?`AND topic_id = ${req.query.topic_id}`:''}) as total_records FROM \`mcq_topic\` mt LEFT JOIN \`questions_mcq\` qm ON mt.q_id = qm.question_id LEFT JOIN faculty f ON f.id = qm.created_by WHERE question_title LIKE ? ${req.query.topic_id!=0?`AND topic_id = ${req.query.topic_id}`:''} GROUP BY qm.question_id ORDER BY date_created DESC LIMIT ? OFFSET ?;`
   connection.query(
@@ -335,6 +357,28 @@ router.get('/topics_info',(req, res)=>{
     (err, results, fields) => {
       if (err) return res.status(400).send(err);
       return res.send(results);
+    }
+  );
+})
+
+router.get('/student_info',(req, res)=>{
+  connection.query(
+    "SELECT usn,name,email,branch,semester FROM `students` WHERE usn = ?;",
+    [req.query.usn],
+    (err, results, fields) => {
+      if (err) return res.status(400).send(err);
+      return res.send(...results);
+    }
+  );
+})
+
+router.get('/faculty_info',(req, res)=>{
+  connection.query(
+    "SELECT employee_id,name,email,branch FROM `faculty` WHERE id = ?;",
+    [req.query.id],
+    (err, results, fields) => {
+      if (err) return res.status(400).send(err);
+      return res.send(...results);
     }
   );
 })

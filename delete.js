@@ -68,6 +68,17 @@ router.delete("/delete_topic", (req, res) => {
   );
 });
 
+router.delete("/delete_notice", (req, res) => {
+  connection.query(
+    "DELETE FROM `notice_board` WHERE `id` = ?",
+    [req.query.notice_id],
+    (err, results, fields) => {
+      if (err) return res.status(400).send(err);
+      return res.send(results);
+    }
+  );
+});
+
 
 
 

@@ -110,6 +110,30 @@ router.patch("/change_student_status", (req, res) => {
   })
 });
 
+router.patch("/update_student", (req, res) => {
+  connection.query("UPDATE `students` SET `email` = ?, `name` = ?, `branch` = ?, `semester` = ? WHERE `usn` = ?;",[req.body.email,req.body.name,req.body.branch,req.body.semester, req.body.usn],
+  (err,results,fields)=>{
+    if (err) return res.status(400).send(err);
+    return res.send(results);
+  })
+});
+
+router.patch("/update_faculty", (req, res) => {
+  connection.query("UPDATE `faculty` SET `employee_id` = ?, `email` = ?, `name` = ?, `branch` = ? WHERE `id` = ?;",[req.body.employee_id,req.body.email,req.body.name,req.body.branch, req.body.currentID],
+  (err,results,fields)=>{
+    if (err) return res.status(400).send(err);
+    return res.send(results);
+  })
+});
+
+router.patch("/update_notice", (req, res) => {
+  connection.query("UPDATE `notice_board` SET `notice_heading` = ?, `notice` = ? WHERE `id` = ?;",[req.body.notice_heading,req.body.notice, req.body.notice_id],
+  (err,results,fields)=>{
+    if (err) return res.status(400).send(err);
+    return res.send(results);
+  })
+});
+
 router.patch("/update_question", (req, res) => {
   connection.query("UPDATE `questions_mcq` SET `question_title` = ?, `correct_answer` = ?, `difficulty_level` = ?, `option_set` = ?, `points` = ?, `time_limit` = ? WHERE `question_id` = ?;",[req.body.question_title, req.body.correct_answer, req.body.difficulty_level,req.body.option_set.toString(), req.body.points,req.body.time_limit,req.body.q_id],
   (err,results,fields)=>{

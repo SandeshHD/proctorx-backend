@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 08, 2023 at 09:01 PM
+-- Generation Time: May 10, 2023 at 09:32 PM
 -- Server version: 10.4.24-MariaDB
 -- PHP Version: 8.1.5
 
@@ -54,14 +54,6 @@ CREATE TABLE `attended_test` (
   `score` float NOT NULL DEFAULT 0,
   `time_taken` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `attended_test`
---
-
-INSERT INTO `attended_test` (`id`, `test_id`, `user_id`, `attended_date`, `score`, `time_taken`) VALUES
-(1, 15, '4CB19CS089', '2023-05-07 13:22:20', 0.75, 0),
-(2, 13, '4CB19CS089', '2023-05-07 13:24:36', 1, 0);
 
 --
 -- Triggers `attended_test`
@@ -118,11 +110,10 @@ CREATE TABLE `faculty` (
 --
 
 INSERT INTO `faculty` (`id`, `name`, `email`, `branch`, `employee_id`, `password`, `verified`) VALUES
-(1, 'Ram', 'ram@gmail.com', 2, 'ex1010', '$2a$10$Qv86peGrAVLWxIq1RfhlyujIU6YVUuH7zwrCBamNCdLDW0f3L1eau', 1),
+(1, 'Ram', 'ram1@gmail.com', 2, 'ex10100', '$2a$10$Qv86peGrAVLWxIq1RfhlyujIU6YVUuH7zwrCBamNCdLDW0f3L1eau', 1),
 (2, 'Krishna', 'krishna@gmail.com', 2, 'ey2010', '$2a$10$ciJNjkiRPJaeA5VV0LRIauRUsytg1VPdckzAiVq5Jg/mH/C4QOwke', 0),
 (3, 'Naveen', 'naveen@gmail.com', 2, 'bp1021', '$2a$10$rRK7vxamv.FgE2wqGK7sf.Fqp1boDDqQaC6SaNGpV8v09Kp2kQBP.', 1),
-(4, 'Anil', 'anil@gmail.com', 3, 'bx1032', '$2a$10$c02/a2pbjPpBiF.WA3h72e9m7f9RghBqmbmXHYBZdSfz6Xmy1EK6u', 0),
-(6, 'Testuser', 'testuser@gmail.com', 1, 'fx505dt', '$2a$10$wvLlwWbw.tg2ipaiAZnRsOGs4RdT7U/WlSaYBKhxMlFBc7qtpQDPG', 0);
+(4, 'Anil', 'anil@gmail.com', 3, 'bx1032', '$2a$10$c02/a2pbjPpBiF.WA3h72e9m7f9RghBqmbmXHYBZdSfz6Xmy1EK6u', 0);
 
 -- --------------------------------------------------------
 
@@ -230,10 +221,9 @@ CREATE TABLE `notice_board` (
 --
 
 INSERT INTO `notice_board` (`id`, `faculty_id`, `notice_heading`, `notice`, `notice_date`) VALUES
-(1, 1, 'Test 1', 'Something big is coming soon', '2023-04-19'),
-(2, 2, 'Test 2', 'Test string 123', '2023-04-19'),
 (3, 1, 'Hackathon', 'Some big hackathon is on the way', '2023-04-19'),
-(4, 2, 'Event', 'College fest is coming soon', '2023-04-19');
+(4, 2, 'Event', 'College fest is coming soon', '2023-04-19'),
+(6, 1, 'Test notice', 'test', '2023-05-11');
 
 -- --------------------------------------------------------
 
@@ -343,7 +333,6 @@ CREATE TABLE `students` (
   `password` text DEFAULT NULL,
   `tests_attended` int(11) NOT NULL DEFAULT 0,
   `total_score` int(11) NOT NULL DEFAULT 0,
-  `tests_missed` int(11) NOT NULL DEFAULT 0,
   `verified` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -351,10 +340,10 @@ CREATE TABLE `students` (
 -- Dumping data for table `students`
 --
 
-INSERT INTO `students` (`usn`, `name`, `email`, `branch`, `semester`, `password`, `tests_attended`, `total_score`, `tests_missed`, `verified`) VALUES
-('4CB19CS064', 'Padmaprasad', 'padmaprasad@gmail.com', 2, 8, '$2a$10$wuO41k5NIWvFRWzfE3Mif.dGugIsvgjoYhenqoY0A7.rdVgWun0J.', 0, 0, 0, 1),
-('4CB19CS076', 'Paramashiva', 'pvparamashivakaranth@gmail.com', 2, 8, '$2a$10$16Ol0.W9/JKYCm4uFIX/se/lJXFr/qGABDSj/LmkzE2kt2JxF9Dhe', 0, 0, 0, 1),
-('4CB19CS089', 'Sandesh', 'sandeshhd16@gmail.com', 2, 8, '$2a$10$FZmhxN6SzJ0Y72nJGeEOcO7g6UZak/L2h9Ta2M4JtPmvpUM9fql1m', 41, 118, 0, 1);
+INSERT INTO `students` (`usn`, `name`, `email`, `branch`, `semester`, `password`, `tests_attended`, `total_score`, `verified`) VALUES
+('4CB19CS064', 'Padmaprasad', 'padmaprasad@gmail.com', 2, 8, '$2a$10$wuO41k5NIWvFRWzfE3Mif.dGugIsvgjoYhenqoY0A7.rdVgWun0J.', 0, 0, 1),
+('4CB19CS076', 'Paramashiva', 'pvparamashivakaranth@gmail.com', 2, 8, '$2a$10$16Ol0.W9/JKYCm4uFIX/se/lJXFr/qGABDSj/LmkzE2kt2JxF9Dhe', 0, 0, 1),
+('4CB19CS089', 'SandeshHD', 'sandeshhd161@gmail.com', 2, 8, '$2a$10$FZmhxN6SzJ0Y72nJGeEOcO7g6UZak/L2h9Ta2M4JtPmvpUM9fql1m', 42, 118, 1);
 
 -- --------------------------------------------------------
 
@@ -387,12 +376,10 @@ CREATE TABLE `tests` (
   `id` int(11) NOT NULL,
   `test_name` varchar(50) NOT NULL,
   `faculty_id` int(11) NOT NULL,
-  `sections` int(11) NOT NULL,
   `duration` int(11) NOT NULL,
   `questions` int(11) NOT NULL DEFAULT 0,
   `marks` int(11) NOT NULL DEFAULT 0,
   `deadline` datetime NOT NULL DEFAULT current_timestamp(),
-  `instructions` text NOT NULL,
   `status` text NOT NULL DEFAULT 'disabled'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -400,10 +387,10 @@ CREATE TABLE `tests` (
 -- Dumping data for table `tests`
 --
 
-INSERT INTO `tests` (`id`, `test_name`, `faculty_id`, `sections`, `duration`, `questions`, `marks`, `deadline`, `instructions`, `status`) VALUES
-(3, '2nd internal', 1, 0, 240, 4, 4, '2023-05-02 23:43:43', '', 'disabled'),
-(13, 'Test x', 1, 0, 240, 4, 4, '2023-05-18 13:26:33', '', 'enabled'),
-(15, 'testing-test', 1, 0, 120, 2, 2, '2023-05-15 07:05:29', '', 'enabled');
+INSERT INTO `tests` (`id`, `test_name`, `faculty_id`, `duration`, `questions`, `marks`, `deadline`, `status`) VALUES
+(3, '2nd internal', 1, 240, 4, 4, '2023-05-03 18:13:43', 'enabled'),
+(13, 'Test x', 1, 240, 4, 4, '2023-05-18 13:26:33', 'enabled'),
+(15, 'testing-test', 1, 120, 2, 2, '2023-05-15 07:05:29', 'enabled');
 
 -- --------------------------------------------------------
 
@@ -520,6 +507,7 @@ ALTER TABLE `branches`
 --
 ALTER TABLE `faculty`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `employee_id` (`employee_id`),
   ADD UNIQUE KEY `email` (`email`),
   ADD KEY `branch` (`branch`);
 
@@ -600,7 +588,7 @@ ALTER TABLE `admin_user`
 -- AUTO_INCREMENT for table `attended_test`
 --
 ALTER TABLE `attended_test`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `branches`
@@ -618,7 +606,7 @@ ALTER TABLE `faculty`
 -- AUTO_INCREMENT for table `notice_board`
 --
 ALTER TABLE `notice_board`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `questions_mcq`

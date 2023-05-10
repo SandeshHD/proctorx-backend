@@ -127,37 +127,6 @@ router.post('/mcq-topic',(req,res)=>{
     })
 })
 
-// Create Coding Topics
-router.post('/coding-topic',(req,res)=>{
-    connection.query("INSERT INTO `coding_topic` (`q_id`, `topic_id`) VALUES (?, ?);",[req.body.q_id,req.body.topic_id],(err,result,fields)=>{
-        if (err) return res.status(400).send(err);
-        return res.send(result)
-    })
-})
-
-// Create Coding Testcases
-router.post('/testcase',(req,res)=>{
-    connection.query("INSERT INTO `testcases` (`q_id`, `input`, `output`, `explanation`) VALUES (?, ?, ?, ?);",[req.body.q_id,req.body.input,req.body.output,req.body.explanation],(err,result,fields)=>{
-        if (err) return res.status(400).send(err);
-        return res.send(result)
-    })
-})
-
-// Create Question bank
-router.post('/question-bank',(req,res)=>{
-    connection.query("INSERT INTO `question_bank` (`name`, `created_by`) VALUES (?, ?);",[req.body.name,req.body.created_by],(err,result,fields)=>{
-        if (err) return res.status(400).send(err);
-        return res.send(result)
-    })
-})
-
-// Create Question bank items
-router.post('/question-bank-items',(req,res)=>{
-    connection.query("INSERT INTO `question_bank_items` (`qb_id`, `q_id`) VALUES (?, ?);",[req.body.qb_id,req.body.q_id],(err,result,fields)=>{
-        if (err) return res.status(400).send(err);
-        return res.send(result)
-    })
-  })
   
 // Create Test
 router.post('/test',(req,res)=>{
@@ -205,6 +174,13 @@ router.post('/start_test',(req,res)=>{
     })
 })
 
+router.post('/notice',(req,res)=>{
+    connection.query("INSERT INTO `notice_board` (`faculty_id`, `notice_heading`, `notice`) VALUES (?, ?, ?);",[req.body.faculty_id,req.body.notice_heading,req.body.notice],(err,result,fields)=>{
+        if (err) return res.status(400).send(err);
+        return res.send(result)
+    })
+})
+
 //
 
 router.post('/populate',(req,res)=>{
@@ -216,6 +192,7 @@ router.post('/populate',(req,res)=>{
       })
     })
   })
+
 
 // router.post('/populate_topic',(req,res)=>{
 //   req.body.data.forEach((data,index)=>{
