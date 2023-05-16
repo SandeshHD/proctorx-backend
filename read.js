@@ -85,7 +85,7 @@ router.get("/leaderboard", (req, res) => {
 
 router.get("/noticeboard", (req, res) => {
   connection.query(
-    "SELECT nb.id,notice_heading,notice,notice_date,name FROM `notice_board` nb INNER JOIN `faculty` f ON nb.faculty_id = f.id;",
+    "SELECT nb.id,notice_heading,notice,notice_date,name FROM `notice_board` nb INNER JOIN `faculty` f ON nb.faculty_id = f.id ORDER BY notice_date DESC;",
     (err, results, fields) => {
       if (err) return res.status(400).send(err);
       return res.send(results);
