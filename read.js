@@ -75,7 +75,7 @@ router.get("/topic_score", (req, res) => {
 
 router.get("/leaderboard", (req, res) => {
   connection.query(
-    "select s1.name,s1.usn, s1.tests_attended,s1.total_score, (select count(distinct total_score) from `students` s2 WHERE s2.total_score >= s1.total_score)as 'rank' from `students` s1 order by s1.total_score desc LIMIT 10;",
+    "select s1.name,s1.usn, s1.tests_attended,s1.total_score, (select count(distinct total_score) from `students` s2 WHERE s2.total_score >= s1.total_score) as 'rank' from `students` s1 order by s1.total_score desc LIMIT 10;",
     (err, results, fields) => {
       if (err) return res.status(400).send(err);
       return res.send(results);
@@ -125,12 +125,12 @@ router.get("/testInfo", (req, res) => {
 });
 
 router.get('/all_tests',(req, res)=>{
-  let query = `SELECT t.id,test_name,faculty_id,name,duration,questions,marks,status,deadline,(select count(*) from \`tests\`) as total_records FROM \`tests\` t INNER JOIN \`faculty\` f ON f.id = t.faculty_id WHERE 1`
+  let query = `SELECT t.id,test_name,faculty_id,name,duration,questions,marks,status,deadline,(select count(*) from \`tests\`) as total_records FROM \`tests\` t INNER JOIN \`faculty\` f ON f.id = t.faculty_id WHERE 1 `
   if(req.query.branch_id!=0){
     query = `SELECT t.id,test_name,faculty_id,name,duration,questions,marks,status,deadline,(select count(*) from \`tests_branch\` tb INNER JOIN \`tests\` t ON tb.test_id = t.id WHERE tb.branch_id = ${req.query.branch_id}) as total_records FROM \`tests_branch\` tb INNER JOIN \`tests\` t ON tb.test_id = t.id INNER JOIN \`faculty\` f ON f.id = t.faculty_id WHERE branch_id = ${req.query.branch_id} `
   }
   if(req.query.show=='enabled' || req.query.show == 'disabled'){
-    query+= `AND status = '${req.query.show}'`
+    query+= ` AND status = '${req.query.show}'`
   }
   query += " AND (test_name LIKE ? OR deadline LIKE ? OR name LIKE ?) ORDER BY deadline LIMIT ? OFFSET ?;"
   connection.query(
