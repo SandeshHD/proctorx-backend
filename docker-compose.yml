@@ -6,6 +6,7 @@ services:
     restart: unless-stopped
     volumes:
       - $HOME/database:/var/lib/mysql
+      - ./proctorx.sql:/docker-entrypoint-initdb.d/proctorx.sql
     ports:
       - 3306:3306
     expose:
