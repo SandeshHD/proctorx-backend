@@ -1,0 +1,51 @@
+services:
+  mysqldb:
+    image: sandeshhd/mysql
+    container_name: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    volumes:
+      - $HOME/database:/var/lib/mysql
+    ports:
+      - 3306:3306
+    expose:
+      - 3306
+    environment:
+      MYSQL_DATABASE: proctorx
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: pass
+      MYSQL_ROOT_PASSWORD: pass
+      SERVICE_NAME: mysqldb
+    networks:
+      - internalnet
+    healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-h", "mysqldb"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+
+  nodeapp:
+    container_name: proctorx-backend
+    build: .
+    image: sandeshhd/proctorx-backend
+    environment:
+      DB_HOST: mysqldb
+      DB_USER: 'root'
+      DB_PASSWORD: 'pass'
+      DB_NAME: proctorx
+      DB_PORT: 3306
+      DB_CONNECTION_LIMIT: 10
+      SERVER_PORT: 3005
+    ports:
+      - 3005:3005
+    expose:
+      - 3005
+    depends_on:
+      mysqldb:
+        condition: service_healthy
+    networks:
+      - internalnet
+
+networks:
+  internalnet:
+    driver: bridge
