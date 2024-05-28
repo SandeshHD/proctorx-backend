@@ -9,15 +9,14 @@ pipeline {
         }
         stage('Add Env'){
             withCredentials([usernamePassword(credentialsId: 'db-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            sh """
-DB_HOST=proctorx-db.c5mesm46eyzl.us-east-1.rds.amazonaws.com
-DB_USER=$USERNAME
-DB_PASSWORD=$PASSWORD
-DB_NAME=proctorx
-DB_PORT=3306
-DB_CONNECTION_LIMIT=10
-SERVER_PORT=3005
-""" > .env
+            def envString = "DB_HOST=proctorx-db.c5mesm46eyzl.us-east-1.rds.amazonaws.com\n"
+            envString += "DB_USER=$USERNAME\n"
+            envString += "DB_PASSWORD=$PASSWORD\n"
+            envString += "DB_NAME=proctorx\n"
+            envString += "DB_PORT=3306\n"
+            envString += "DB_CONNECTION_LIMIT=10\n"
+            envString += "SERVER_PORT=3005\n"
+            sh "echo -e '$envString' > .env"
         }
         }
         stage('Frontend Docker Build'){
