@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proctorx-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: proctorx-backend
+  template:
+    metadata:
+      labels:
+        app: proctorx-backend
+    spec:
+      containers:
+      - name: proctorx-backend
+        image: sandeshhd/proctorx-backend:latest
+        ports:
+        - containerPort: 3005
