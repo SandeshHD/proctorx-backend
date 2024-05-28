@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('SCM Frontend') {
             steps {
-                git 'https://github.com/SandeshHD/proctorx-backend.git', branch: 'main'
+                git branch: 'main', url: 'https://github.com/SandeshHD/proctorx-backend'
             }
         }
         stage('Add Env'){
