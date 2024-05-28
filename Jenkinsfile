@@ -12,14 +12,14 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'db-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                 script{
                     def envString = """
-                    DB_HOST=proctorx-db.c5mesm46eyzl.us-east-1.rds.amazonaws.com
-                    DB_USER=$USERNAME
-                    DB_PASSWORD=$PASSWORD
-                    DB_NAME=proctorx
-                    DB_PORT=3306
-                    DB_CONNECTION_LIMIT=10
-                    SERVER_PORT=3005"""
-                    sh "echo -e '$envString' > .env"
+DB_HOST=proctorx-db.c5mesm46eyzl.us-east-1.rds.amazonaws.com
+DB_USER=$USERNAME
+DB_PASSWORD=$PASSWORD
+DB_NAME=proctorx
+DB_PORT=3306
+DB_CONNECTION_LIMIT=10
+SERVER_PORT=3005"""
+sh "echo '$envString' > .env"
 
                 }
             }
