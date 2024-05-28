@@ -7,7 +7,7 @@ spec:
     app: proctorx-backend
   ports:
   - protocol: TCP
-    port: 80
+    port: 3005
     targetPort: 3005
     name: backend
   type: LoadBalancer
