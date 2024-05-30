@@ -131,7 +131,7 @@ router.post('/mcq-topic',(req,res)=>{
 // Create Test
 router.post('/test',(req,res)=>{
     const test = new Promise((resolve,reject) =>{
-      connection.query("INSERT INTO `tests` (`test_name`,`faculty_id`,`deadline`) VALUES (?, ?,?);",[req.body.test_name,req.body.faculty_id,req.body.deadline],(err,result,fields)=>{
+      connection.query("INSERT INTO `tests` (`test_name`,`faculty_id`,`deadline`) VALUES (?, ?,?);",[req.body.test_name,req.body.faculty_id,new Date(req.body.deadline)],(err,result,fields)=>{
         if (err) reject(err);
         resolve(result)
       })
