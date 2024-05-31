@@ -52,8 +52,9 @@ sh "echo '$envString' > .env"
         stage('Kubernetes Start'){
             steps{
                 script{
-                    sh 'kubectl apply -f deployment.yml --validate=false'
-                    sh 'kubectl apply -f services.yml --validate=false'
+                    sh 'kubectl delete pods --all'
+                    sh 'kubectl apply -f deployment.yml'
+                    sh 'kubectl apply -f services.yml'
                     sh 'kubectl get services'
                 }
             }
