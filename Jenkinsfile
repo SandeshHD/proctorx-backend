@@ -60,7 +60,6 @@ sh "echo '$envString' > .env"
         stage('Kubernetes Start'){
             steps{
                 script{
-                    sh 'kubectl delete pods -l app=proctorx-backend --grace-period=0 --force'
                     sh 'kubectl apply -f deployment.yml'
                     sh 'kubectl apply -f services.yml'
                     sh 'kubectl get services'
