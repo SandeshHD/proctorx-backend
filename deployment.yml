@@ -15,5 +15,6 @@ spec:
       containers:
       - name: proctorx-backend
         image: sandeshhd/proctorx-backend:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 3005
