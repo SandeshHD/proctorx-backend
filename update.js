@@ -173,7 +173,7 @@ router.patch("/update_question", (req, res) => {
 
 
 router.patch("/update_test", (req, res) => {
-  connection.query("UPDATE `tests` SET `test_name` = ?, `deadline` = ? WHERE `tests`.`id` = ?;",[req.body.test_name,req.body.deadline,req.body.test_id],
+  connection.query("UPDATE `tests` SET `test_name` = ?, `deadline` = ? WHERE `tests`.`id` = ?;",[req.body.test_name,new Date(req.body.deadline),req.body.test_id],
   (err,results,fields)=>{
     if (err) return res.status(400).send(err);
     let insertPromise = new Promise((resolve,reject)=>{
